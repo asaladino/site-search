@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import SiteSearch from './SiteSearch';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const siteSearchElement = document.getElementById('site-search');
+const baseUrl = siteSearchElement.getAttribute('data-base-url');
+const domain = siteSearchElement.getAttribute('data-domain');
+const limit = siteSearchElement.getAttribute('data-limit');
+const openInNewWindow = siteSearchElement.getAttribute('data-open-in-new-window');
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+ReactDOM.render(<SiteSearch baseUrl={baseUrl}
+                            domain={domain}
+                            openInNewWindow={openInNewWindow === 'true'}
+                            limit={limit}/>, siteSearchElement);

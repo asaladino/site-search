@@ -40,7 +40,7 @@ const Excerpt = (props) => {
         excerpt = excerpt.replace(p, `<span class="site-search-term label secondary">${p}</span>`)
     }
 
-    return <div dangerouslySetInnerHTML={{__html: excerpt}} className='site-search-excerpt'/>;
+    return <p dangerouslySetInnerHTML={{__html: excerpt}} className='site-search-excerpt'/>;
 };
 
 export default Excerpt;

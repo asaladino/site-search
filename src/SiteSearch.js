@@ -1,15 +1,18 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import Excerpt from "./Excerpt";
+import Paginate from "./Paginate";
 
 const SiteSearch = (props) => {
-    const {domain, baseUrl, limit, openInNewWindow} = props;
+    const {domain, baseUrl, limit, openInNewWindow, appUrl, siteName} = props;
     const [search, setSearch] = useState('');
+    const [highlight, setHighlight] = useState('');
     const [results, setResults] = useState(null);
     const [page, setPage] = useState(0);
 
     const onSubmit = (e) => {
         e.preventDefault();
+        setPage(0);
         fetchResults(search, page);
     };
 
@@ -17,7 +20,9 @@ const SiteSearch = (props) => {
         axios.get(`${baseUrl}/?domain=${domain}&s=${term}&page=${currentPage}&limit=${limit}`)
             .then(results => {
                 setResults(results.data);
-                window.history.pushState({}, "", `/?s=${term.replace(new RegExp(' ', 'g'), '+')}`);
+                setHighlight(term);
+                window.scrollTo(0, 0);
+                window.history.pushState({}, "", `${appUrl}?s=${term.replace(new RegExp(' ', 'g'), '+')}`);
             })
             .catch(e => {
                 console.log(e);
@@ -38,6 +43,11 @@ const SiteSearch = (props) => {
         }
     }, []);
 
+    const changePage = (updatedPage) => {
+        setPage(updatedPage);
+        fetchResults(search, updatedPage);
+    };
+
     const previous = () => {
         setPage(page - 1);
         fetchResults(search, page - 1);
@@ -51,7 +61,9 @@ const SiteSearch = (props) => {
     return <div className="site-search">
         <form onSubmit={onSubmit}>
             <div className="input-group">
-                <span className="input-group-label"/>
+                <span className="input-group-label">
+                    {siteName}
+                </span>
                 <input className="input-group-field" type="text" name="search" value={search}
                        onChange={e => setSearch(e.target.value)}/>
                 <div className="input-group-button">
@@ -60,10 +72,14 @@ const SiteSearch = (props) => {
             </div>
         </form>
 
+        {results && results.count > 0 ?
+            <Paginate page={page} previous={previous} next={next} changePage={changePage} limit={limit} count={results.count}/>
+            : null}
+
         <div className="site-search-results">
             {results && results.count > 0 ? <strong>Found {results.count} results.</strong> : null}
             {results && results.count > 0 ? results.rows.map(row => {
-                return <div key={row.name}>
+                return <div key={row.name} className='site-search-result'>
                     <h3 className='site-search-title'>
                         <a href={row.url}
                            target={openInNewWindow ? '_blank' : '_self'}
@@ -71,37 +87,20 @@ const SiteSearch = (props) => {
                             {row.title}
                         </a>
                     </h3>
-                    <Excerpt text={row.contents} phrases={search.split(' ')} radius={200} ending={'...'}/>
-                    <div className='site-search-url'>
+                    <p className='site-search-url'>
                         <a href={row.url}
                            target={openInNewWindow ? '_blank' : '_self'}
                            rel={openInNewWindow ? 'noopener noreferrer' : null}>
                             {row.url}
                         </a>
-                    </div>
-                    <hr/>
+                    </p>
+                    <Excerpt text={row.contents} phrases={highlight.split(' ')} radius={200} ending={'...'}/>
                 </div>
             }) : <strong>No results</strong>}
         </div>
-        {results && results.count > 0 ? <div className="site-search-paging">
-            <nav aria-label="Pagination">
-                <ul className="pagination">
-                    <li className={`pagination-previous ${page === 0 ? 'disabled' : null}`}>
-                        {page > 0 ? <a aria-label="Previous page" onClick={previous}>
-                            Previous <span className="show-for-sr">page</span>
-                        </a> : <span>Previous <span className="show-for-sr">page</span></span>}
-                    </li>
-                    <li className="current">
-                        <span className="show-for-sr">You're on page</span> {(() => page + 1)()}
-                    </li>
-                    <li className={`pagination-next ${(page + 1) * limit >= results.count ? 'disabled' : null}`}>
-                        {(page + 1) * limit < results.count ? <a aria-label="Next page" onClick={next}>
-                            Next <span className="show-for-sr">page</span>
-                        </a> : <span>Next <span className="show-for-sr">page</span></span>}
-                    </li>
-                </ul>
-            </nav>
-        </div> : null}
+        {results && results.count > 0 ?
+            <Paginate page={page} previous={previous} next={next} changePage={changePage} limit={limit} count={results.count}/>
+            : null}
     </div>;
 };
 

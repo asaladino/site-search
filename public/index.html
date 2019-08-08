@@ -8,7 +8,17 @@
     <title>Site Search</title>
     <style>
         body {
-            padding-top: 40px;
+            padding: 40px 0;
+        }
+        .site-search-result {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ffffff;
+            padding: 16px;
+            border-radius: 2px;
+        }
+        .site-search-result:hover {
+            border: 1px solid #ccc;
         }
     </style>
 </head>
@@ -17,9 +27,11 @@
     <div class="grid-x grid-margin-x">
         <div class="cell">
             <div id="site-search"
-                 data-base-url="http://localhost:4444"
-                 data-limit="4"
-                 data-open-in-new-window="false"
+                 data-base-url="https://localhost:4444"
+                 data-app-url="https://localhost:3000"
+                 data-limit="10"
+                 data-site-name="Coding Simply"
+                 data-open-in-new-window="true"
                  data-domain="codingsimply.com"></div>
         </div>
     </div>
